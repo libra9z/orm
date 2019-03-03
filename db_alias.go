@@ -62,6 +62,7 @@ var (
 		"oracle":   DROracle,
 		"oci8":     DROracle, // github.com/mattn/go-oci8
 		"ora":      DROracle, //https://github.com/rana/ora
+		"goracle":  DROracle, //https://github.com/go-goracle/goracle
 	}
 	dbBasers = map[DriverType]dbBaser{
 		DRMySQL:    newdbBaseMysql(),
