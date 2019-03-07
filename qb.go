@@ -55,9 +55,9 @@ func NewQueryBuilder(driver string) (qb QueryBuilder, err error) {
 		err = errors.New("postgres query builder is not supported yet")
 	} else if driver == "sqlite" {
 		err = errors.New("sqlite query builder is not supported yet")
-	} else if driver == "goracle" || driver == "oracle" || driver == "ora" || driver == "oci8" {
+	} else if driver == "goracle" || driver == "oracle" {
 		qb = new(OracleQueryBuilder)
-	}else {
+	} else {
 		err = errors.New("unknown driver for query builder")
 	}
 	return

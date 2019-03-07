@@ -151,7 +151,11 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 		sql += fmt.Sprintf("--  Table Structure for `%s`\n", mi.fullName)
 		sql += fmt.Sprintf("-- %s\n", strings.Repeat("-", 50))
 
-		sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.table, Q)
+		if al.Driver == DROracle {
+			sql += fmt.Sprintf("CREATE TABLE %s%s%s (\n", Q, mi.table, Q)
+		} else {
+			sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.table, Q)
+		}
 
 		columns := make([]string, 0, len(mi.fields.fieldsDB))
 
@@ -183,7 +187,9 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 				//}
 
 				// Append attribute DEFAULT
-				column += getColumnDefault(fi)
+				if al.Driver != DROracle {
+					column += getColumnDefault(fi)
+				}
 
 				if fi.unique {
 					column += " " + "UNIQUE"
@@ -197,9 +203,9 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 			if strings.Contains(column, "%COL%") {
 				column = strings.Replace(column, "%COL%", fi.column, -1)
 			}
-			
+
 			if fi.description != "" {
-				column += " " + fmt.Sprintf("COMMENT '%s'",fi.description)
+				column += " " + fmt.Sprintf("COMMENT '%s'", fi.description)
 			}
 
 			columns = append(columns, column)
@@ -238,7 +244,9 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 			sql += " ENGINE=" + engine
 		}
 
-		sql += ";"
+		if al.Driver != DROracle {
+			sql += ";"
+		}
 		sqls = append(sqls, sql)
 
 		if mi.model != nil {

@@ -60,8 +60,6 @@ var (
 		"sqlite3":  DRSqlite,
 		"tidb":     DRTiDB,
 		"oracle":   DROracle,
-		"oci8":     DROracle, // github.com/mattn/go-oci8
-		"ora":      DROracle, //https://github.com/rana/ora
 		"goracle":  DROracle, //https://github.com/go-goracle/goracle
 	}
 	dbBasers = map[DriverType]dbBaser{
@@ -211,6 +209,10 @@ func RegisterDataBase(aliasName, driverName, dataSource string, params ...int) e
 		db  *sql.DB
 		al  *alias
 	)
+
+	if driverName == "oracle" {
+		driverName = "goracle"
+	}
 
 	db, err = sql.Open(driverName, dataSource)
 	if err != nil {
