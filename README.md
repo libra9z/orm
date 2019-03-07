@@ -11,6 +11,7 @@ It is heavily influenced by Django ORM, SQLAlchemy.
 * MySQL: [github.com/go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
 * PostgreSQL: [github.com/lib/pq](https://github.com/lib/pq)
 * Sqlite3: [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)
+* Oracle: [github.com/go-oracle/goracle(https://github.com/go-oracle/goracle)
 
 Passed all test, but need more feedback.
 
