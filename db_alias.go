@@ -27,12 +27,13 @@ type DriverType int
 
 // Enum the Database driver
 const (
-	_          DriverType = iota // int enum type
-	DRMySQL                      // mysql
-	DRSqlite                     // sqlite
-	DROracle                     // oracle
-	DRPostgres                   // pgsql
-	DRTiDB                       // TiDB
+	_           DriverType = iota // int enum type
+	DRMySQL                       // mysql
+	DRSqlite                      // sqlite
+	DROracle                      // oracle
+	DRPostgres                    // pgsql
+	DRTiDB                        // TiDB
+	DRSqlserver                   // Sqlserver
 )
 
 // database driver string.
@@ -55,19 +56,21 @@ var _ Driver = new(driver)
 var (
 	dataBaseCache = &_dbCache{cache: make(map[string]*alias)}
 	drivers       = map[string]DriverType{
-		"mysql":    DRMySQL,
-		"postgres": DRPostgres,
-		"sqlite3":  DRSqlite,
-		"tidb":     DRTiDB,
-		"oracle":   DROracle,
-		"goracle":  DROracle, //https://github.com/go-goracle/goracle
+		"mysql":     DRMySQL,
+		"postgres":  DRPostgres,
+		"sqlite3":   DRSqlite,
+		"tidb":      DRTiDB,
+		"oracle":    DROracle,
+		"goracle":   DROracle,    //https://github.com/go-goracle/goracle
+		"sqlserver": DRSqlserver, //https://github.com/denisenkom/go-mssqldb
 	}
 	dbBasers = map[DriverType]dbBaser{
-		DRMySQL:    newdbBaseMysql(),
-		DRSqlite:   newdbBaseSqlite(),
-		DROracle:   newdbBaseOracle(),
-		DRPostgres: newdbBasePostgres(),
-		DRTiDB:     newdbBaseTidb(),
+		DRMySQL:     newdbBaseMysql(),
+		DRSqlite:    newdbBaseSqlite(),
+		DROracle:    newdbBaseOracle(),
+		DRPostgres:  newdbBasePostgres(),
+		DRTiDB:      newdbBaseTidb(),
+		DRSqlserver: newdbBaseSqlserver(),
 	}
 )
 
