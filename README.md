@@ -12,6 +12,7 @@ It is heavily influenced by Django ORM, SQLAlchemy.
 * PostgreSQL: [github.com/lib/pq](https://github.com/lib/pq)
 * Sqlite3: [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)
 * Oracle: [github.com/go-oracle/goracle](https://github.com/go-oracle/goracle)
+* Sql Server: [github.com/denisenkom/go-mssqldb](https://github.com/denisenkom/go-mssqldb)
 
 Passed all test, but need more feedback.
 
@@ -32,6 +33,7 @@ more features please read the docs
 
 ## Changelog
 
+* 2019-03-09: support sql server and oracle
 * 2013-08-19: support table auto create
 * 2013-08-13: update test for database types
 * 2013-08-13: go type support, such as int8, uint8, byte, rune
