@@ -125,17 +125,21 @@ func (d *dbBasePostgres) ReplaceMarks(query *string) {
 	*query = string(data)
 }
 
-// make returning sql support for postgresql.
+// make returning sql support for postgresql. (GPDB 5.1  not support, so commented it)
 func (d *dbBasePostgres) HasReturningID(mi *modelInfo, query *string) bool {
-	fi := mi.fields.pk
-	if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 {
-		return false
-	}
+	/*
+		fi := mi.fields.pk
+		if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 {
+			return false
+		}
 
-	if query != nil {
-		*query = fmt.Sprintf(`%s RETURNING "%s"`, *query, fi.column)
-	}
-	return true
+		if query != nil {
+			*query = fmt.Sprintf(`%s RETURNING "%s"`, *query, fi.column)
+		}
+		return true
+	*/
+
+	return false
 }
 
 // sync auto key
