@@ -380,8 +380,10 @@ func (d *dbBase) Insert(q dbQuerier, mi *modelInfo, ind reflect.Value, tz *time.
 	}
 
 	id, err := d.InsertValue(q, mi, false, names, values)
-	if err != nil && !strings.Contains(err.Error(),"LastInsertId is not supported") {
+	if err != nil && !strings.Contains(err.Error(), "LastInsertId is not supported") {
 		return 0, err
+	} else {
+		err = nil
 	}
 
 	if len(autoFields) > 0 {
