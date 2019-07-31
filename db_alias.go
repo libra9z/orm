@@ -220,7 +220,12 @@ func RegisterDataBase(aliasName, driverName, dataSource string, params ...int) e
 		driverName = "goracle"
 	}
 
-	db, err = sql.Open(driverName, dataSource)
+	if driverName == "gpdb" {
+		db, err = sql.Open("postgres", dataSource)
+	}else{
+		db, err = sql.Open(driverName, dataSource)
+	}
+
 	if err != nil {
 		err = fmt.Errorf("register db `%s`, %s", aliasName, err.Error())
 		goto end
