@@ -17,10 +17,11 @@ package orm
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // postgresql operators.
-var postgresOperators = map[string]string{
+var gpdbOperators = map[string]string{
 	"exact":       "= ?",
 	"iexact":      "= UPPER(?)",
 	"contains":    "LIKE ?",
@@ -38,7 +39,7 @@ var postgresOperators = map[string]string{
 }
 
 // postgresql column field types.
-var postgresTypes = map[string]string{
+var gpdbTypes = map[string]string{
 	"auto":            "serial NOT NULL PRIMARY KEY",
 	"pk":              "NOT NULL PRIMARY KEY",
 	"bool":            "bool",
@@ -62,19 +63,19 @@ var postgresTypes = map[string]string{
 }
 
 // postgresql dbBaser.
-type dbBasePostgres struct {
+type dbBaseGpdb struct {
 	dbBase
 }
 
-var _ dbBaser = new(dbBasePostgres)
+var _ dbBaser = new(dbBaseGpdb)
 
 // get postgresql operator.
-func (d *dbBasePostgres) OperatorSQL(operator string) string {
+func (d *dbBaseGpdb) OperatorSQL(operator string) string {
 	return postgresOperators[operator]
 }
 
 // generate functioned sql string, such as contains(text).
-func (d *dbBasePostgres) GenerateOperatorLeftCol(fi *fieldInfo, operator string, leftCol *string) {
+func (d *dbBaseGpdb) GenerateOperatorLeftCol(fi *fieldInfo, operator string, leftCol *string) {
 	switch operator {
 	case "contains", "startswith", "endswith":
 		*leftCol = fmt.Sprintf("%s::text", *leftCol)
@@ -84,22 +85,22 @@ func (d *dbBasePostgres) GenerateOperatorLeftCol(fi *fieldInfo, operator string,
 }
 
 // postgresql unsupports updating joined record.
-func (d *dbBasePostgres) SupportUpdateJoin() bool {
+func (d *dbBaseGpdb) SupportUpdateJoin() bool {
 	return false
 }
 
-func (d *dbBasePostgres) MaxLimit() uint64 {
+func (d *dbBaseGpdb) MaxLimit() uint64 {
 	return 0
 }
 
 // postgresql quote is ".
-func (d *dbBasePostgres) TableQuote() string {
+func (d *dbBaseGpdb) TableQuote() string {
 	return `"`
 }
 
 // postgresql value placeholder is $n.
 // replace default ? to $n.
-func (d *dbBasePostgres) ReplaceMarks(query *string) {
+func (d *dbBaseGpdb) ReplaceMarks(query *string) {
 	q := *query
 	num := 0
 	for _, c := range q {
@@ -125,11 +126,51 @@ func (d *dbBasePostgres) ReplaceMarks(query *string) {
 	*query = string(data)
 }
 
+// execute insert sql with given struct and given values.
+// insert the given values, not the field values in struct.
+func (d *dbBaseGpdb) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names []string, values []interface{}) (int64, error) {
+	Q := d.ins.TableQuote()
+
+	marks := make([]string, len(names))
+	for i := range marks {
+		marks[i] = "?"
+	}
+
+	sep := fmt.Sprintf("%s, %s", Q, Q)
+	qmarks := strings.Join(marks, ", ")
+	columns := strings.Join(names, sep)
+
+	multi := len(values) / len(names)
+
+	if isMulti {
+		qmarks = strings.Repeat(qmarks+"), (", multi-1) + qmarks
+	}
+
+	query := fmt.Sprintf("INSERT INTO %s%s%s (%s%s%s) VALUES (%s)", Q, mi.table, Q, Q, columns, Q, qmarks)
+
+	d.ins.ReplaceMarks(&query)
+
+	if isMulti || !d.ins.HasReturningID(mi, &query) {
+		res, err := q.Exec(query, values...)
+		if err == nil {
+			if isMulti {
+				return res.RowsAffected()
+			}
+			return 0, nil
+		}
+		return 0, err
+	}
+	row := q.QueryRow(query, values...)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 // make returning sql support for postgresql. (GPDB 5.1  not support, so commented it)
-func (d *dbBasePostgres) HasReturningID(mi *modelInfo, query *string) bool {
+func (d *dbBaseGpdb) HasReturningID(mi *modelInfo, query *string) bool {
 
 	fi := mi.fields.pk
-	if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 {
+	if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 && !d.SupportReturningID() {
 		return false
 	}
 
@@ -137,10 +178,12 @@ func (d *dbBasePostgres) HasReturningID(mi *modelInfo, query *string) bool {
 		*query = fmt.Sprintf(`%s RETURNING "%s"`, *query, fi.column)
 	}
 	return true
+
+	//return false
 }
 
 // sync auto key
-func (d *dbBasePostgres) setval(db dbQuerier, mi *modelInfo, autoFields []string) error {
+func (d *dbBaseGpdb) setval(db dbQuerier, mi *modelInfo, autoFields []string) error {
 	if len(autoFields) == 0 {
 		return nil
 	}
@@ -159,22 +202,22 @@ func (d *dbBasePostgres) setval(db dbQuerier, mi *modelInfo, autoFields []string
 }
 
 // show table sql for postgresql.
-func (d *dbBasePostgres) ShowTablesQuery() string {
+func (d *dbBaseGpdb) ShowTablesQuery() string {
 	return "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema')"
 }
 
 // show table columns sql for postgresql.
-func (d *dbBasePostgres) ShowColumnsQuery(table string) string {
+func (d *dbBaseGpdb) ShowColumnsQuery(table string) string {
 	return fmt.Sprintf("SELECT column_name, data_type, is_nullable FROM information_schema.columns where table_schema NOT IN ('pg_catalog', 'information_schema') and table_name = '%s'", table)
 }
 
 // get column types of postgresql.
-func (d *dbBasePostgres) DbTypes() map[string]string {
+func (d *dbBaseGpdb) DbTypes() map[string]string {
 	return postgresTypes
 }
 
 // check index exist in postgresql.
-func (d *dbBasePostgres) IndexExists(db dbQuerier, table string, name string) bool {
+func (d *dbBaseGpdb) IndexExists(db dbQuerier, table string, name string) bool {
 	query := fmt.Sprintf("SELECT COUNT(*) FROM pg_indexes WHERE tablename = '%s' AND indexname = '%s'", table, name)
 	row := db.QueryRow(query)
 	var cnt int
@@ -183,8 +226,8 @@ func (d *dbBasePostgres) IndexExists(db dbQuerier, table string, name string) bo
 }
 
 // create new postgresql dbBaser.
-func newdbBasePostgres() dbBaser {
-	b := new(dbBasePostgres)
+func newdbBaseGpdb() dbBaser {
+	b := new(dbBaseGpdb)
 	b.ins = b
 	return b
 }

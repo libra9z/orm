@@ -469,4 +469,5 @@ type dbBaser interface {
 	IndexExists(dbQuerier, string, string) bool
 	collectFieldValue(*modelInfo, *fieldInfo, reflect.Value, bool, *time.Location) (interface{}, error)
 	setval(dbQuerier, *modelInfo, []string) error
+	SupportReturningID() bool
 }

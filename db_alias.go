@@ -34,6 +34,7 @@ const (
 	DRPostgres                    // pgsql
 	DRTiDB                        // TiDB
 	DRSqlserver                   // Sqlserver
+	DRGreenplum                   // GreenplumDB
 )
 
 // database driver string.
@@ -63,6 +64,7 @@ var (
 		"oracle":    DROracle,
 		"goracle":   DROracle,    //https://github.com/go-goracle/goracle
 		"sqlserver": DRSqlserver, //https://github.com/denisenkom/go-mssqldb
+		"gpdb":      DRGreenplum,
 	}
 	dbBasers = map[DriverType]dbBaser{
 		DRMySQL:     newdbBaseMysql(),
@@ -71,6 +73,7 @@ var (
 		DRPostgres:  newdbBasePostgres(),
 		DRTiDB:      newdbBaseTidb(),
 		DRSqlserver: newdbBaseSqlserver(),
+		DRGreenplum: newdbBaseGpdb(),
 	}
 )
 
@@ -161,7 +164,7 @@ func detectTZ(al *alias) {
 	case DRSqlite, DROracle:
 		al.TZ = time.UTC
 
-	case DRPostgres:
+	case DRPostgres, DRGreenplum:
 		row := al.DB.QueryRow("SELECT current_setting('TIMEZONE')")
 		var tz string
 		row.Scan(&tz)
