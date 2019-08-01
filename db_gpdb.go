@@ -16,8 +16,10 @@ package orm
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // postgresql operators.
@@ -126,6 +128,25 @@ func (d *dbBaseGpdb) ReplaceMarks(query *string) {
 	*query = string(data)
 }
 
+// execute insert sql dbQuerier with given struct reflect.Value.
+func (d *dbBaseGpdb) Insert(q dbQuerier, mi *modelInfo, ind reflect.Value, tz *time.Location) (int64, error) {
+	names := make([]string, 0, len(mi.fields.dbcols))
+	values, autoFields, err := d.collectValues(mi, ind, mi.fields.dbcols, false, true, &names, tz)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := d.InsertValue(q, mi, false, names, values)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(autoFields) > 0 {
+		err = d.ins.setval(q, mi, autoFields)
+	}
+	return id, err
+}
+
 // execute insert sql with given struct and given values.
 // insert the given values, not the field values in struct.
 func (d *dbBaseGpdb) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names []string, values []interface{}) (int64, error) {
@@ -170,7 +191,7 @@ func (d *dbBaseGpdb) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names
 func (d *dbBaseGpdb) HasReturningID(mi *modelInfo, query *string) bool {
 
 	fi := mi.fields.pk
-	if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 && !d.SupportReturningID() {
+	if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 || !d.SupportReturningID() {
 		return false
 	}
 
