@@ -120,6 +120,7 @@ type fieldInfo struct {
 	initial             StrTo // store the default value
 	size                int
 	toText              bool
+	sequence            bool //主键是否为sequence自增字段（oralce）
 	autoNow             bool
 	autoNowAdd          bool
 	rel                 bool // if type equal to RelForeignKey, RelOneToOne, RelManyToMany then true
@@ -180,6 +181,11 @@ func newFieldInfo(mi *modelInfo, field reflect.Value, sf reflect.StructField, mN
 
 	initial.Clear()
 	if v, ok := tags["default"]; ok {
+		initial.Set(v)
+	}
+
+	//sequence 设置default value
+	if v, ok := tags["sequence"]; ok {
 		initial.Set(v)
 	}
 
@@ -308,8 +314,15 @@ checkType:
 	fi.pk = attrs["pk"]
 	fi.unique = attrs["unique"]
 
+	//增加pk 为sequence时的处理
+	fi.sequence = attrs["sequence"]
+
 	// Mark object property if there is attribute "default" in the orm configuration
 	if _, ok := tags["default"]; ok {
+		fi.colDefault = true
+	}
+
+	if _, ok := tags["sequence"]; ok {
 		fi.colDefault = true
 	}
 
@@ -428,7 +441,7 @@ checkType:
 	}
 
 	// can not set default for these type
-	if fi.auto || fi.pk || fi.unique || fieldType == TypeTimeField || fieldType == TypeDateField || fieldType == TypeDateTimeField {
+	if (fi.auto || fi.pk || fi.unique || fieldType == TypeTimeField || fieldType == TypeDateField || fieldType == TypeDateTimeField) && !fi.sequence {
 		initial.Clear()
 	}
 

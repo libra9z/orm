@@ -16,8 +16,10 @@ package orm
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // oracle operators.
@@ -173,4 +175,89 @@ func (d *dbBaseOracle) ReplaceMarks(query *string) {
 		}
 		*query = *query + ss[len(ss)-1]
 	}
+}
+
+// execute insert sql dbQuerier with given struct reflect.Value.
+func (d *dbBaseOracle) Insert(q dbQuerier, mi *modelInfo, ind reflect.Value, tz *time.Location) (int64, error) {
+	names := make([]string, 0, len(mi.fields.dbcols))
+	values, autoFields, err := d.collectValues(mi, ind, mi.fields.dbcols, false, true, &names, tz)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := d.InsertValue(q, mi, false, names, values)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(autoFields) > 0 {
+		err = d.ins.setval(q, mi, autoFields)
+	}
+	return id, err
+}
+
+// execute insert sql with given struct and given values.
+// insert the given values, not the field values in struct.
+func (d *dbBaseOracle) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names []string, values []interface{}) (int64, error) {
+	Q := d.ins.TableQuote()
+
+	marks := make([]string, len(names))
+	for i := range marks {
+		marks[i] = "?"
+	}
+
+	sep := fmt.Sprintf("%s, %s", Q, Q)
+	qmarks := strings.Join(marks, ", ")
+	columns := strings.Join(names, sep)
+
+	multi := len(values) / len(names)
+
+	if isMulti {
+		qmarks = strings.Repeat(qmarks+"), (", multi-1) + qmarks
+	}
+
+	query := fmt.Sprintf("INSERT INTO %s%s%s (%s%s%s) VALUES (%s)", Q, mi.table, Q, Q, columns, Q, qmarks)
+
+	d.ins.ReplaceMarks(&query)
+
+	if isMulti || !d.ins.HasReturningID(mi, &query) {
+		res, err := q.Exec(query, values...)
+		if err == nil {
+			if isMulti {
+				return res.RowsAffected()
+			}
+			return 0, nil
+		}
+		return 0, err
+	}
+	row := q.QueryRow(query, values...)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+func (d *dbBaseOracle) SetSequence(mi *modelInfo, names []string, query *string) {
+	pkname := ""
+	value := ""
+	for _, column := range mi.fields.dbcols {
+		var fi *fieldInfo
+		if fi, _ = mi.fields.GetByAny(column); fi != nil {
+			column = fi.column
+		} else {
+			panic(fmt.Errorf("wrong db field/column name `%s` for model `%s`", column, mi.fullName))
+		}
+		if fi.sequence && fi.colDefault {
+			pkname = column
+			value = fi.initial.String()
+			break
+		}
+	}
+	index := 0
+	for i := 0; i < len(names); i++ {
+		if names[i] == pkname {
+			index = i + 1
+			break
+		}
+	}
+	*query = strings.Replace(*query, ":"+strconv.FormatInt(int64(index), 10), value, -1)
 }

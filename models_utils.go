@@ -33,6 +33,7 @@ var supportTag = map[string]int{
 	"auto":         1,
 	"auto_now":     1,
 	"auto_now_add": 1,
+	"sequence":     2,
 	"size":         2,
 	"column":       2,
 	"default":      2,
@@ -217,6 +218,10 @@ func parseStructTag(data string) (attrs map[string]bool, tags map[string]string)
 			if supportTag[name] == 2 {
 				v = v[i+1 : len(v)-1]
 				tags[name] = v
+			}
+			//增加sequence的设置（oracle的sequence）
+			if name == "sequence" {
+				attrs[name] = true
 			}
 		} else {
 			DebugLog.Println("unsupport orm tag", v)
