@@ -200,10 +200,18 @@ func (d *dbBaseOracle) Insert(q dbQuerier, mi *modelInfo, ind reflect.Value, tz 
 // insert the given values, not the field values in struct.
 func (d *dbBaseOracle) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names []string, values []interface{}) (int64, error) {
 	Q := d.ins.TableQuote()
+	var vu []interface{}
 
 	marks := make([]string, len(names))
 	for i := range marks {
-		marks[i] = "?"
+		column :=  mi.fields.dbcols[i]
+		fi, _ := mi.fields.GetByAny(column)
+		if fi != nil && fi.sequence && fi.colDefault {
+			marks[i] = fi.initial.String()
+		}else{
+			marks[i] = "?"
+			vu = append(vu,values[i])
+		}
 	}
 
 	sep := fmt.Sprintf("%s, %s", Q, Q)
@@ -221,7 +229,7 @@ func (d *dbBaseOracle) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, nam
 	d.ins.ReplaceMarks(&query)
 
 	if isMulti || !d.ins.HasReturningID(mi, &query) {
-		res, err := q.Exec(query, values...)
+		res, err := q.Exec(query, vu...)
 		if err == nil {
 			if isMulti {
 				return res.RowsAffected()
@@ -234,30 +242,4 @@ func (d *dbBaseOracle) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, nam
 	var id int64
 	err := row.Scan(&id)
 	return id, err
-}
-
-func (d *dbBaseOracle) SetSequence(mi *modelInfo, names []string, query *string) {
-	pkname := ""
-	value := ""
-	for _, column := range mi.fields.dbcols {
-		var fi *fieldInfo
-		if fi, _ = mi.fields.GetByAny(column); fi != nil {
-			column = fi.column
-		} else {
-			panic(fmt.Errorf("wrong db field/column name `%s` for model `%s`", column, mi.fullName))
-		}
-		if fi.sequence && fi.colDefault {
-			pkname = column
-			value = fi.initial.String()
-			break
-		}
-	}
-	index := 0
-	for i := 0; i < len(names); i++ {
-		if names[i] == pkname {
-			index = i + 1
-			break
-		}
-	}
-	*query = strings.Replace(*query, ":"+strconv.FormatInt(int64(index), 10), value, -1)
 }
