@@ -35,6 +35,7 @@ const (
 	DRTiDB                        // TiDB
 	DRSqlserver                   // Sqlserver
 	DRGreenplum                   // GreenplumDB
+	DRDameng               		  // 达梦数据库
 )
 
 // database driver string.
@@ -65,6 +66,7 @@ var (
 		"goracle":   DROracle,    //https://github.com/go-goracle/goracle
 		"sqlserver": DRSqlserver, //https://github.com/denisenkom/go-mssqldb
 		"gpdb":      DRGreenplum,
+		"dm":      	 DRDameng,		//https://github.com/alexbrainman/odbc
 	}
 	dbBasers = map[DriverType]dbBaser{
 		DRMySQL:     newdbBaseMysql(),
@@ -74,6 +76,7 @@ var (
 		DRTiDB:      newdbBaseTidb(),
 		DRSqlserver: newdbBaseSqlserver(),
 		DRGreenplum: newdbBaseGpdb(),
+		DRDameng: newdbBaseDm(),
 	}
 )
 
@@ -223,8 +226,14 @@ func RegisterDataBase(aliasName, driverName, dataSource string, params ...int) e
 	if driverName == "gpdb" {
 		db, err = sql.Open("postgres", dataSource)
 	}else{
-		db, err = sql.Open(driverName, dataSource)
+		//达梦数据库
+		if driverName == "dm" {
+			db, err = sql.Open("odbc", dataSource)
+		}else{
+			db, err = sql.Open(driverName, dataSource)
+		}
 	}
+
 
 	if err != nil {
 		err = fmt.Errorf("register db `%s`, %s", aliasName, err.Error())
