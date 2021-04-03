@@ -36,6 +36,7 @@ const (
 	DRSqlserver                   // Sqlserver
 	DRGreenplum                   // GreenplumDB
 	DRDameng               		  // 达梦数据库
+	DRTaos               		  // 涛思数据库
 )
 
 // database driver string.
@@ -67,6 +68,7 @@ var (
 		"sqlserver": DRSqlserver, //https://github.com/denisenkom/go-mssqldb
 		"gpdb":      DRGreenplum,
 		"dm":      	 DRDameng,		//https://github.com/alexbrainman/odbc
+		"taosSql":   DRTaos,		//https://github.com/taosdata/driver-go
 	}
 	dbBasers = map[DriverType]dbBaser{
 		DRMySQL:     newdbBaseMysql(),
@@ -76,7 +78,8 @@ var (
 		DRTiDB:      newdbBaseTidb(),
 		DRSqlserver: newdbBaseSqlserver(),
 		DRGreenplum: newdbBaseGpdb(),
-		DRDameng: newdbBaseDm(),
+		DRDameng: 	newdbBaseDm(),
+		DRTaos: 	newdbBaseTaos(),
 	}
 )
 
