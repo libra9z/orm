@@ -64,8 +64,8 @@ var (
 		"sqlite3":   DRSqlite,
 		"tidb":      DRTiDB,
 		"oracle":    DROracle,
-		"goracle":   DROracle,    //https://github.com/go-goracle/goracle
-		"sqlserver": DRSqlserver, //https://github.com/denisenkom/go-mssqldb
+		"godror":   DROracle,    	//https://github.com/godror/godror
+		"sqlserver": DRSqlserver, 	//https://github.com/denisenkom/go-mssqldb
 		"gpdb":      DRGreenplum,
 		"dm":      	 DRDameng,		//https://github.com/alexbrainman/odbc
 		"taosSql":   DRTaos,		//https://github.com/taosdata/driver-go
@@ -223,7 +223,7 @@ func RegisterDataBase(aliasName, driverName, dataSource string, params ...int) e
 	)
 
 	if driverName == "oracle" {
-		driverName = "goracle"
+		driverName = "godror"
 	}
 
 	if driverName == "gpdb" {
