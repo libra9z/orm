@@ -35,8 +35,9 @@ const (
 	DRTiDB                        // TiDB
 	DRSqlserver                   // Sqlserver
 	DRGreenplum                   // GreenplumDB
-	DRDameng               		  // 达梦数据库
-	DRTaos               		  // 涛思数据库
+	DRDameng                      // 达梦数据库
+	DRTaos                        // 涛思数据库
+	DROpengauss                   // opengauss数据库
 )
 
 // database driver string.
@@ -64,11 +65,12 @@ var (
 		"sqlite3":   DRSqlite,
 		"tidb":      DRTiDB,
 		"oracle":    DROracle,
-		"godror":   DROracle,    	//https://github.com/godror/godror
-		"sqlserver": DRSqlserver, 	//https://github.com/denisenkom/go-mssqldb
+		"godror":    DROracle,    //https://github.com/godror/godror
+		"sqlserver": DRSqlserver, //https://github.com/denisenkom/go-mssqldb
 		"gpdb":      DRGreenplum,
-		"dm":      	 DRDameng,		//https://github.com/alexbrainman/odbc
-		"taosSql":   DRTaos,		//https://github.com/taosdata/driver-go
+		"dm":        DRDameng,    //https://github.com/alexbrainman/odbc
+		"taosSql":   DRTaos,      //https://github.com/taosdata/driver-go
+		"opengauss": DROpengauss, //https://gitee.com/opengauss/openGauss-connector-go-pq
 	}
 	dbBasers = map[DriverType]dbBaser{
 		DRMySQL:     newdbBaseMysql(),
@@ -78,8 +80,9 @@ var (
 		DRTiDB:      newdbBaseTidb(),
 		DRSqlserver: newdbBaseSqlserver(),
 		DRGreenplum: newdbBaseGpdb(),
-		DRDameng: 	newdbBaseDm(),
-		DRTaos: 	newdbBaseTaos(),
+		DRDameng:    newdbBaseDm(),
+		DRTaos:      newdbBaseTaos(),
+		DROpengauss: newdbBaseOpengauss(),
 	}
 )
 
@@ -228,15 +231,14 @@ func RegisterDataBase(aliasName, driverName, dataSource string, params ...int) e
 
 	if driverName == "gpdb" {
 		db, err = sql.Open("postgres", dataSource)
-	}else{
+	} else {
 		//达梦数据库
 		if driverName == "dm" {
 			db, err = sql.Open("odbc", dataSource)
-		}else{
+		} else {
 			db, err = sql.Open(driverName, dataSource)
 		}
 	}
-
 
 	if err != nil {
 		err = fmt.Errorf("register db `%s`, %s", aliasName, err.Error())
