@@ -134,7 +134,12 @@ func (d *commandSyncDb) Run() error {
 		fmt.Printf("    %s\n", err.Error())
 	}
 
-	for i, mi := range modelCache.allOrdered() {
+	var sqlindex int64 = 0
+	for _, mi := range modelCache.allOrdered() {
+		if mi.aliasName != d.al.Name {
+			continue
+		}
+
 		if tables[mi.table] {
 			if !d.noInfo {
 				fmt.Printf("table `%s` already exists, skip\n", mi.table)
@@ -201,7 +206,7 @@ func (d *commandSyncDb) Run() error {
 			fmt.Printf("create table `%s` \n", mi.table)
 		}
 
-		queries := []string{sqls[i]}
+		queries := []string{sqls[sqlindex]}
 		for _, idx := range indexes[mi.table] {
 			queries = append(queries, idx.SQL)
 		}
@@ -222,6 +227,8 @@ func (d *commandSyncDb) Run() error {
 		if d.verbose {
 			fmt.Println("")
 		}
+
+		sqlindex += 1
 	}
 
 	return nil

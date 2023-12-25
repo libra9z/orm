@@ -147,6 +147,9 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 	tableIndexes = make(map[string][]dbIndex)
 
 	for _, mi := range modelCache.allOrdered() {
+		if mi.aliasName != al.Name {
+			continue
+		}
 		sql := fmt.Sprintf("-- %s\n", strings.Repeat("-", 50))
 		sql += fmt.Sprintf("--  Table Structure for `%s`\n", mi.fullName)
 		sql += fmt.Sprintf("-- %s\n", strings.Repeat("-", 50))
@@ -169,6 +172,8 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 			if fi.auto {
 				switch al.Driver {
 				case DRSqlite, DRPostgres:
+					column += T["auto"]
+				case DROpengauss:
 					column += T["auto"]
 				default:
 					column += col + " " + T["auto"]

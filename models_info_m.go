@@ -32,6 +32,8 @@ type modelInfo struct {
 	addrField reflect.Value //store the original struct value
 	uniques   []string
 	isThrough bool
+	//2023-12-24
+	aliasName string //数据库别名
 }
 
 // new model info

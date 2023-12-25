@@ -25,7 +25,7 @@ var opengaussOperators = map[string]string{
 
 // opengauss column field types.
 var opengaussTypes = map[string]string{
-	"auto":               "serial NOT NULL PRIMARY KEY",
+	"auto":               "BIGSERIAL NOT NULL PRIMARY KEY",
 	"pk":                 "NOT NULL PRIMARY KEY",
 	"bool":               "bool",
 	"string":             "varchar(%d)",
@@ -158,7 +158,7 @@ func (d *dbBaseOpengauss) ShowColumnsQuery(table string) string {
 
 // get column types of postgresql.
 func (d *dbBaseOpengauss) DbTypes() map[string]string {
-	return postgresTypes
+	return opengaussTypes
 }
 
 // check index exist in postgresql.

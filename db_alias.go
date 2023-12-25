@@ -173,7 +173,7 @@ func detectTZ(al *alias) {
 	case DRSqlite, DROracle:
 		al.TZ = time.UTC
 
-	case DRPostgres, DRGreenplum:
+	case DRPostgres, DRGreenplum, DROpengauss:
 		row := al.DB.QueryRow("SELECT current_setting('TIMEZONE')")
 		var tz string
 		row.Scan(&tz)
