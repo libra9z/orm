@@ -198,7 +198,7 @@ func (d *commandSyncDb) Run() error {
 					}
 				}
 			}
-
+			sqlindex += 1
 			continue
 		}
 
