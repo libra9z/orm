@@ -34,6 +34,7 @@ type modelInfo struct {
 	isThrough bool
 	//2023-12-24
 	aliasName string //数据库别名
+	schema    string //schema名称
 }
 
 // new model info

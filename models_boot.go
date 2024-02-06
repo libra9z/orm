@@ -24,7 +24,7 @@ import (
 // register models.
 // PrefixOrSuffix means table name prefix or suffix.
 // isPrefix whether the prefix is prefix or suffix
-func registerModel(aliasName, PrefixOrSuffix string, model interface{}, isPrefix bool) {
+func registerModel(aliasName, PrefixOrSuffix string, model interface{}, isPrefix bool, schema string) {
 	val := reflect.ValueOf(model)
 	typ := reflect.Indirect(val).Type()
 
@@ -86,6 +86,7 @@ func registerModel(aliasName, PrefixOrSuffix string, model interface{}, isPrefix
 	mi.model = model
 	mi.manual = true
 	mi.aliasName = aliasName
+	mi.schema = schema
 
 	modelCache.set(table, mi)
 }
@@ -318,7 +319,7 @@ func RegisterModelWithPrefix(prefix string, models ...interface{}) {
 	}
 
 	for _, model := range models {
-		registerModel("", prefix, model, true)
+		registerModel("", prefix, model, true, "")
 	}
 }
 
@@ -329,7 +330,18 @@ func RegisterModelWithAlias(aliasName string, prefix string, models ...interface
 	}
 
 	for _, model := range models {
-		registerModel(aliasName, prefix, model, true)
+		registerModel(aliasName, prefix, model, true, "")
+	}
+}
+
+// RegisterModelWithAlias register models with a prefix
+func RegisterModelWithSchema(aliasName string, schema, prefix string, models ...interface{}) {
+	if modelCache.done {
+		panic(fmt.Errorf("RegisterModelWithPrefix must be run before BootStrap"))
+	}
+
+	for _, model := range models {
+		registerModel(aliasName, prefix, model, true, schema)
 	}
 }
 
@@ -340,7 +352,7 @@ func RegisterModelWithSuffix(suffix string, models ...interface{}) {
 	}
 
 	for _, model := range models {
-		registerModel("", suffix, model, false)
+		registerModel("", suffix, model, false, "")
 	}
 }
 

@@ -126,11 +126,23 @@ func getColumnAddQuery(al *alias, fi *fieldInfo) string {
 		typ += " " + "NOT NULL"
 	}
 
-	return fmt.Sprintf("ALTER TABLE %s%s%s ADD COLUMN %s%s%s %s %s",
-		Q, fi.mi.table, Q,
-		Q, fi.column, Q,
-		typ, getColumnDefault(fi),
-	)
+	smt := ""
+
+	if fi.mi.schema == "" {
+		smt = fmt.Sprintf("ALTER TABLE %s%s%s ADD COLUMN %s%s%s %s %s",
+			Q, fi.mi.table, Q,
+			Q, fi.column, Q,
+			typ, getColumnDefault(fi),
+		)
+	} else {
+		smt = fmt.Sprintf("ALTER TABLE %s%s%s.%s%s%s ADD COLUMN %s%s%s %s %s",
+			Q, fi.mi.schema, Q, Q, fi.mi.table, Q,
+			Q, fi.column, Q,
+			typ, getColumnDefault(fi),
+		)
+	}
+
+	return smt
 }
 
 // create database creation string.
@@ -157,7 +169,11 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 		if al.Driver == DROracle || al.Driver == DRSqlserver {
 			sql += fmt.Sprintf("CREATE TABLE %s%s%s (\n", Q, mi.table, Q)
 		} else {
-			sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.table, Q)
+			if mi.schema == "" {
+				sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.table, Q)
+			} else {
+				sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s.%s%s%s (\n", Q, mi.schema, Q, Q, mi.table, Q)
+			}
 		}
 
 		columns := make([]string, 0, len(mi.fields.fieldsDB))
