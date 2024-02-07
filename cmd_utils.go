@@ -291,12 +291,17 @@ func getDbCreateSQL(al *alias) (sqls []string, tableIndexes map[string][]dbIndex
 		for _, names := range sqlIndexes {
 			name := mi.table + "_" + strings.Join(names, "_")
 			cols := strings.Join(names, sep)
-			sql := fmt.Sprintf("CREATE INDEX %s%s%s ON %s%s%s (%s%s%s);", Q, name, Q, Q, mi.table, Q, Q, cols, Q)
+			idxsql := ""
+			if mi.schema == "" {
+				idxsql = fmt.Sprintf("CREATE INDEX %s%s%s ON %s%s%s (%s%s%s);", Q, name, Q, Q, mi.table, Q, Q, cols, Q)
+			} else {
+				idxsql = fmt.Sprintf("CREATE INDEX %s%s%s ON %s%s%s.%s%s%s (%s%s%s);", Q, name, Q, Q, mi.schema, Q, Q, mi.table, Q, Q, cols, Q)
+			}
 
 			index := dbIndex{}
 			index.Table = mi.table
 			index.Name = name
-			index.SQL = sql
+			index.SQL = idxsql
 
 			tableIndexes[mi.table] = append(tableIndexes[mi.table], index)
 		}
