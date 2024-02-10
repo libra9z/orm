@@ -163,6 +163,10 @@ func (d *commandSyncDb) Run() error {
 			for _, fi := range fields {
 				query := getColumnAddQuery(d.al, fi)
 
+				if strings.Contains(query, "%COL%") {
+					query = strings.Replace(query, "%COL%", fi.column, -1)
+				}
+
 				if !d.noInfo {
 					fmt.Printf("add column `%s` for table `%s`\n", fi.fullName, mi.table)
 				}
