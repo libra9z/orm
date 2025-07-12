@@ -32,7 +32,13 @@ func getDbDropSQL(mc *imodels.ModelCache, al *alias) (queries []string, err erro
 	Q := al.DbBaser.TableQuote()
 
 	for _, mi := range mc.AllOrdered() {
-		queries = append(queries, fmt.Sprintf(`DROP TABLE IF EXISTS %s%s%s`, Q, mi.Table, Q))
+		// queries = append(queries, fmt.Sprintf(`DROP TABLE IF EXISTS %s%s%s`, Q, mi.Table, Q))
+		if mi.Schema == "" {
+			queries = append(queries, fmt.Sprintf(`DROP TABLE IF EXISTS %s%s%s`, Q, mi.Table, Q))
+		} else {
+			queries = append(queries, fmt.Sprintf(`DROP TABLE IF EXISTS %s%s%s.%s%s%s`, Q, mi.Schema, Q, Q, mi.Table, Q))
+		}
+
 	}
 	return queries, nil
 }
@@ -57,6 +63,20 @@ func getDbCreateSQL(mc *imodels.ModelCache, al *alias) (queries []string, tableI
 
 		sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.Table, Q)
 
+		if al.Driver == DROracle || al.Driver == DRSqlserver {
+			if mi.Schema == "" {
+				sql += fmt.Sprintf("CREATE TABLE  %s%s%s (\n", Q, mi.Table, Q)
+			} else {
+				sql += fmt.Sprintf("CREATE TABLE  %s%s%s.%s%s%s (\n", Q, mi.Schema, Q, Q, mi.Table, Q)
+			}
+		} else {
+			if mi.Schema == "" {
+				sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.Table, Q)
+			} else {
+				sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s.%s%s%s (\n", Q, mi.Schema, Q, Q, mi.Table, Q)
+			}
+		}
+
 		columns := make([]string, 0, len(mi.Fields.FieldsDB))
 
 		sqlIndexes := [][]string{}
@@ -69,7 +89,7 @@ func getDbCreateSQL(mc *imodels.ModelCache, al *alias) (queries []string, tableI
 				column += fi.DBType
 			} else if fi.Auto {
 				switch al.Driver {
-				case DRSqlite, DRPostgres:
+				case DRSqlite, DRPostgres,DROpengauss:
 					column += T["auto"]
 				default:
 					column += col + " " + T["auto"]
@@ -180,8 +200,12 @@ func getDbCreateSQL(mc *imodels.ModelCache, al *alias) (queries []string, tableI
 		for _, names := range sqlIndexes {
 			name := mi.Table + "_" + strings.Join(names, "_")
 			cols := strings.Join(names, sep)
-			sql := fmt.Sprintf("CREATE INDEX %s%s%s ON %s%s%s (%s%s%s);", Q, name, Q, Q, mi.Table, Q, Q, cols, Q)
-
+			sql := ""
+			if mi.Schema == "" {
+				sql = fmt.Sprintf("CREATE INDEX %s%s%s ON %s%s%s (%s%s%s);", Q, name, Q, Q, mi.Table, Q, Q, cols, Q)
+			} else {
+				sql = fmt.Sprintf("CREATE INDEX %s%s%s ON %s%s%s.%s%s%s (%s%s%s);", Q, name, Q, Q, mi.Schema, Q, Q, mi.Table, Q, Q, cols, Q)
+			}
 			index := dbIndex{}
 			index.Table = mi.Table
 			index.Name = name

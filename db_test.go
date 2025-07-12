@@ -894,7 +894,7 @@ func TestDbBase_readBatchSQL(t *testing.T) {
 
 	mc := models.NewModelCacheHandler()
 
-	err := mc.Register("", false, new(testTab), new(testTab1), new(testTab2))
+	err := mc.Register("","","", false, new(testTab), new(testTab1), new(testTab2))
 
 	assert.Nil(t, err)
 
@@ -1199,7 +1199,7 @@ func TestDbBase_readValuesSQL(t *testing.T) {
 
 	mc := models.NewModelCacheHandler()
 
-	err := mc.Register("", false, new(testTab), new(testTab1), new(testTab2))
+	err := mc.Register("","","", false, new(testTab), new(testTab1), new(testTab2))
 
 	assert.Nil(t, err)
 
@@ -1337,7 +1337,7 @@ func TestDbBase_countSQL(t *testing.T) {
 
 	mc := models.NewModelCacheHandler()
 
-	err := mc.Register("", false, new(testTab), new(testTab1), new(testTab2))
+	err := mc.Register("","","", false, new(testTab), new(testTab1), new(testTab2))
 
 	assert.Nil(t, err)
 

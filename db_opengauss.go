@@ -138,8 +138,12 @@ func (d *dbBaseOpengauss) setval(ctx context.Context, db dbQuerier, mi *models.M
 
 	Q := d.ins.TableQuote()
 	for _, name := range autoFields {
-
-		query := fmt.Sprintf("SELECT setval(pg_get_serial_sequence('%s', '%s'), (SELECT MAX(%s%s%s) FROM %s%s%s));", mi.Table, name, Q, name, Q, Q, mi.Table, Q)
+		query :=""
+		if mi.Schema == "" {
+			query = fmt.Sprintf("SELECT setval(pg_get_serial_sequence('%s', '%s'), (SELECT MAX(%s%s%s) FROM %s%s%s));", mi.Table, name, Q, name, Q, Q, mi.Table, Q)
+		}else{
+			query = fmt.Sprintf("SELECT setval(pg_get_serial_sequence('%s', '%s'), (SELECT MAX(%s%s%s) FROM %s%s%s.%s%s%s));", mi.Table, name, Q, name, Q, Q, mi.Schema, Q,Q, mi.Table, Q)
+		}
 		if _, err := db.ExecContext(ctx, query); err != nil {
 			return err
 		}

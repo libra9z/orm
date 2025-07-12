@@ -250,6 +250,10 @@ func ParseStructTag(data string) (attrs map[string]bool, tags map[string]string)
 				v = v[i+1 : len(v)-1]
 				tags[name] = v
 			}
+			//增加sequence的设置（oracle的sequence）
+			if name == "sequence" {
+				attrs[name] = true
+			}
 		}
 	}
 	return

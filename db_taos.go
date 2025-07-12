@@ -16,6 +16,8 @@ package orm
 
 import (
 	"fmt"
+	"github.com/libra9z/orm/internal/models"
+	"context"
 )
 
 // taos operators.
@@ -66,8 +68,8 @@ func (d *dbBaseTaos) OperatorSQL(operator string) string {
 
 // generate functioned sql for taos.
 // only support DATE(text).
-func (d *dbBaseTaos) GenerateOperatorLeftCol(fi *fieldInfo, operator string, leftCol *string) {
-	if fi.fieldType == TypeDateField {
+func (d *dbBaseTaos) GenerateOperatorLeftCol(fi *models.FieldInfo, operator string, leftCol *string) {
+	if fi.FieldType == TypeDateField {
 		*leftCol = fmt.Sprintf("DATE(%s)", *leftCol)
 	}
 }
@@ -89,9 +91,9 @@ func (d *dbBaseTaos) DbTypes() map[string]string {
 
 
 // get columns in taos.
-func (d *dbBaseTaos) GetColumns(db dbQuerier, table string) (map[string][3]string, error) {
+func (d *dbBaseTaos) GetColumns(ctx context.Context,db dbQuerier, table string) (map[string][3]string, error) {
 	query := d.ins.ShowColumnsQuery(table)
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(ctx,query)
 	if err != nil {
 		return nil, err
 	}

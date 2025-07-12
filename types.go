@@ -660,4 +660,8 @@ type dbBaser interface {
 	setval(context.Context, dbQuerier, *models.ModelInfo, []string) error
 
 	GenerateSpecifyIndex(tableName string, useIndex int, indexes []string) string
+
+	//add by Eric 2025/07/09
+	SupportReturningID() bool
+
 }

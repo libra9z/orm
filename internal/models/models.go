@@ -311,7 +311,7 @@ end:
 }
 
 // Register Register models to model cache
-func (mc *ModelCache) Register(prefixOrSuffixStr string, prefixOrSuffix bool, models ...interface{}) (err error) {
+func (mc *ModelCache) Register(aliasName,schema,prefixOrSuffixStr string, prefixOrSuffix bool, models ...interface{}) (err error) {
 	for _, model := range models {
 		val := reflect.ValueOf(model)
 		typ := reflect.Indirect(val).Type()
@@ -371,6 +371,8 @@ func (mc *ModelCache) Register(prefixOrSuffixStr string, prefixOrSuffix bool, mo
 		mi.Pkg = typ.PkgPath()
 		mi.Model = model
 		mi.Manual = true
+		mi.Schema = schema
+		mi.AliasName = aliasName
 
 		mc.Set(table, mi)
 	}

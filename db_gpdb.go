@@ -15,11 +15,14 @@
 package orm
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/libra9z/orm/internal/models"
 )
 
 // postgresql operators.
@@ -77,7 +80,7 @@ func (d *dbBaseGpdb) OperatorSQL(operator string) string {
 }
 
 // generate functioned sql string, such as contains(text).
-func (d *dbBaseGpdb) GenerateOperatorLeftCol(fi *fieldInfo, operator string, leftCol *string) {
+func (d *dbBaseGpdb) GenerateOperatorLeftCol(fi *models.FieldInfo, operator string, leftCol *string) {
 	switch operator {
 	case "contains", "startswith", "endswith":
 		*leftCol = fmt.Sprintf("%s::text", *leftCol)
@@ -129,27 +132,27 @@ func (d *dbBaseGpdb) ReplaceMarks(query *string) {
 }
 
 // execute insert sql dbQuerier with given struct reflect.Value.
-func (d *dbBaseGpdb) Insert(q dbQuerier, mi *modelInfo, ind reflect.Value, tz *time.Location) (int64, error) {
-	names := make([]string, 0, len(mi.fields.dbcols))
-	values, autoFields, err := d.collectValues(mi, ind, mi.fields.dbcols, false, true, &names, tz)
+func (d *dbBaseGpdb) Insert(ctx context.Context, q dbQuerier, mi *models.ModelInfo, ind reflect.Value, tz *time.Location) (int64, error) {
+	names := make([]string, 0, len(mi.Fields.DBcols))
+	values, autoFields, err := d.collectValues(mi, ind, mi.Fields.DBcols, false, true, &names, tz)
 	if err != nil {
 		return 0, err
 	}
 
-	id, err := d.InsertValue(q, mi, false, names, values)
+	id, err := d.InsertValue(ctx, q, mi, false, names, values)
 	if err != nil {
 		return 0, err
 	}
 
 	if len(autoFields) > 0 {
-		err = d.ins.setval(q, mi, autoFields)
+		err = d.ins.setval(ctx, q, mi, autoFields)
 	}
 	return id, err
 }
 
 // execute insert sql with given struct and given values.
 // insert the given values, not the field values in struct.
-func (d *dbBaseGpdb) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names []string, values []interface{}) (int64, error) {
+func (d *dbBaseGpdb) InsertValue(ctx context.Context, q dbQuerier, mi *models.ModelInfo, isMulti bool, names []string, values []interface{}) (int64, error) {
 	Q := d.ins.TableQuote()
 
 	marks := make([]string, len(names))
@@ -166,13 +169,18 @@ func (d *dbBaseGpdb) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names
 	if isMulti {
 		qmarks = strings.Repeat(qmarks+"), (", multi-1) + qmarks
 	}
-
-	query := fmt.Sprintf("INSERT INTO %s%s%s (%s%s%s) VALUES (%s)", Q, mi.table, Q, Q, columns, Q, qmarks)
+	query := ""
+	if mi.Schema == "" {
+		query = fmt.Sprintf("INSERT INTO %s%s%s (%s%s%s) VALUES (%s)", Q, mi.Table, Q, Q, columns, Q, qmarks)
+	} else {
+		query = fmt.Sprintf("INSERT INTO %s%s%s.%s%s%s (%s%s%s) VALUES (%s)", Q, mi.Schema, Q, Q, mi.Table, Q, Q, columns, Q, qmarks)
+	}
+	// query = fmt.Sprintf("INSERT INTO %s%s%s (%s%s%s) VALUES (%s)", Q, mi.Table, Q, Q, columns, Q, qmarks)
 
 	d.ins.ReplaceMarks(&query)
 
 	if isMulti || !d.ins.HasReturningID(mi, &query) {
-		res, err := q.Exec(query, values...)
+		res, err := q.ExecContext(ctx, query, values...)
 		if err == nil {
 			if isMulti {
 				return res.RowsAffected()
@@ -181,22 +189,22 @@ func (d *dbBaseGpdb) InsertValue(q dbQuerier, mi *modelInfo, isMulti bool, names
 		}
 		return 0, err
 	}
-	row := q.QueryRow(query, values...)
+	row := q.QueryRowContext(ctx, query, values...)
 	var id int64
 	err := row.Scan(&id)
 	return id, err
 }
 
 // make returning sql support for postgresql. (GPDB 5.1  not support, so commented it)
-func (d *dbBaseGpdb) HasReturningID(mi *modelInfo, query *string) bool {
+func (d *dbBaseGpdb) HasReturningID(mi *models.ModelInfo, query *string) bool {
 
-	fi := mi.fields.pk
-	if fi.fieldType&IsPositiveIntegerField == 0 && fi.fieldType&IsIntegerField == 0 || !d.SupportReturningID() {
+	fi := mi.Fields.Pk
+	if fi.FieldType&IsPositiveIntegerField == 0 && fi.FieldType&IsIntegerField == 0 || !d.SupportReturningID() {
 		return false
 	}
 
 	if query != nil {
-		*query = fmt.Sprintf(`%s RETURNING "%s"`, *query, fi.column)
+		*query = fmt.Sprintf(`%s RETURNING "%s"`, *query, fi.Column)
 	}
 	return true
 
@@ -204,18 +212,20 @@ func (d *dbBaseGpdb) HasReturningID(mi *modelInfo, query *string) bool {
 }
 
 // sync auto key
-func (d *dbBaseGpdb) setval(db dbQuerier, mi *modelInfo, autoFields []string) error {
+func (d *dbBaseGpdb) setval(ctx context.Context, db dbQuerier, mi *models.ModelInfo, autoFields []string) error {
 	if len(autoFields) == 0 {
 		return nil
 	}
 
 	Q := d.ins.TableQuote()
 	for _, name := range autoFields {
-		query := fmt.Sprintf("SELECT setval(pg_get_serial_sequence('%s', '%s'), (SELECT MAX(%s%s%s) FROM %s%s%s));",
-			mi.table, name,
-			Q, name, Q,
-			Q, mi.table, Q)
-		if _, err := db.Exec(query); err != nil {
+		query := ""
+		if mi.Schema == "" {
+			query = fmt.Sprintf("SELECT setval(pg_get_serial_sequence('%s', '%s'), (SELECT MAX(%s%s%s) FROM %s%s%s));", mi.Table, name, Q, name, Q, Q, mi.Table, Q)
+		} else {
+			query = fmt.Sprintf("SELECT setval(pg_get_serial_sequence('%s', '%s'), (SELECT MAX(%s%s%s) FROM %s%s%s.%s%s%s));", mi.Table, name, Q, name, Q, Q, mi.Schema, Q, Q, mi.Table, Q)
+		}
+		if _, err := db.ExecContext(ctx, query); err != nil {
 			return err
 		}
 	}
@@ -238,9 +248,9 @@ func (d *dbBaseGpdb) DbTypes() map[string]string {
 }
 
 // check index exist in postgresql.
-func (d *dbBaseGpdb) IndexExists(db dbQuerier, table string, name string) bool {
+func (d *dbBaseGpdb) IndexExists(ctx context.Context,db dbQuerier, table string, name string) bool {
 	query := fmt.Sprintf("SELECT COUNT(*) FROM pg_indexes WHERE tablename = '%s' AND indexname = '%s'", table, name)
-	row := db.QueryRow(query)
+	row := db.QueryRowContext(ctx,query)
 	var cnt int
 	row.Scan(&cnt)
 	return cnt > 0

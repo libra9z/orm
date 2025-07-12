@@ -494,7 +494,7 @@ func (d *dbBase) InsertValueSQL(names []string, values []interface{}, isMulti bo
 	Q := d.ins.TableQuote()
 
 	_, _ = buf.WriteString("INSERT INTO ")
-	if mi.Schema!="" {
+	if mi.Schema != "" {
 		_, _ = buf.WriteString(Q)
 		_, _ = buf.WriteString(mi.Schema)
 		_, _ = buf.WriteString(Q)
@@ -503,7 +503,7 @@ func (d *dbBase) InsertValueSQL(names []string, values []interface{}, isMulti bo
 	_, _ = buf.WriteString(Q)
 	_, _ = buf.WriteString(mi.Table)
 	_, _ = buf.WriteString(Q)
-	
+
 	_, _ = buf.WriteString(" (")
 	for i, name := range names {
 		if i > 0 {
@@ -669,7 +669,7 @@ func (d *dbBase) InsertOrUpdateSQL(names []string, values *[]interface{}, mi *mo
 					_, _ = buf.WriteString("=(select ")
 					_, _ = buf.WriteString(valueStr)
 					_, _ = buf.WriteString(" from ")
-					if mi.Schema!="" {
+					if mi.Schema != "" {
 						_, _ = buf.WriteString(mi.Schema)
 						_, _ = buf.WriteString(".")
 					}
@@ -926,7 +926,7 @@ func (d *dbBase) UpdateBatchSQL(mi *models.ModelInfo, cols []string, values []in
 		_, _ = buf.WriteString(quote)
 		_, _ = buf.WriteString(".")
 	}
-	
+
 	_, _ = buf.WriteString(quote)
 	_, _ = buf.WriteString(mi.Table)
 	_, _ = buf.WriteString(quote)
@@ -2093,6 +2093,11 @@ func (d *dbBase) ReplaceMarks(query *string) {
 
 // flag of RETURNING sql.
 func (d *dbBase) HasReturningID(*models.ModelInfo, *string) bool {
+	return false
+}
+
+// flag of RETURNING sql.
+func (d *dbBase) SupportReturningID() bool {
 	return false
 }
 

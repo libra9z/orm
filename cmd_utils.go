@@ -124,11 +124,23 @@ func getColumnAddQuery(al *alias, fi *models.FieldInfo) string {
 		typ += " " + "NOT NULL"
 	}
 
-	return fmt.Sprintf("ALTER TABLE %s%s%s ADD COLUMN %s%s%s %s %s",
-		Q, fi.Mi.Table, Q,
-		Q, fi.Column, Q,
-		typ, getColumnDefault(fi),
-	)
+	smt := ""
+
+	if fi.Mi.Schema == "" {
+		smt = fmt.Sprintf("ALTER TABLE %s%s%s ADD COLUMN %s%s%s %s %s",
+			Q, fi.Mi.Table, Q,
+			Q, fi.Column, Q,
+			typ, getColumnDefault(fi),
+		)
+	} else {
+		smt = fmt.Sprintf("ALTER TABLE %s%s%s.%s%s%s ADD COLUMN %s%s%s %s %s",
+			Q, fi.Mi.Schema, Q, Q, fi.Mi.Table, Q,
+			Q, fi.Column, Q,
+			typ, getColumnDefault(fi),
+		)
+	}
+
+	return smt
 }
 
 // Get string value for the attribute "DEFAULT" for the CREATE, ALTER commands

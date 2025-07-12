@@ -79,7 +79,7 @@ func TestGetDbCreateSQLWithComment(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			testModelCache.Clean()
-			err := testModelCache.Register("", true, tc.model)
+			err := testModelCache.Register("","","", true, tc.model)
 			assert.NoError(t, err)
 			queries, _, err := getDbCreateSQL(testModelCache, al)
 			assert.Equal(t, tc.wantSQL, queries[0])

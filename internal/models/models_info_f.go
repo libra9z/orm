@@ -191,6 +191,10 @@ func NewFieldInfo(mi *ModelInfo, field reflect.Value, sf reflect.StructField, mN
 		initial.Set(v)
 	}
 
+	//sequence 设置default value
+	if v, ok := tags["sequence"]; ok {
+		initial.Set(v)
+	}
 checkType:
 	switch f := addrField.Interface().(type) {
 	case Fielder:
@@ -316,9 +320,14 @@ checkType:
 	fi.DBType = tags["db_type"]
 	fi.Pk = attrs["pk"]
 	fi.Unique = attrs["unique"]
+	//增加pk 为sequence时的处理
+	fi.Sequence = attrs["sequence"]
 
 	// Mark object property if there is attribute "default" in the orm configuration
 	if _, ok := tags["default"]; ok {
+		fi.ColDefault = true
+	}
+	if _, ok := tags["sequence"]; ok {
 		fi.ColDefault = true
 	}
 
