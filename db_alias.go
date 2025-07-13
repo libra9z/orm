@@ -37,9 +37,9 @@ const (
 	DRTiDB                        // TiDB
 	DRSqlserver                   // Sqlserver
 	DRGreenplum                   // GreenplumDB
-	DRDameng                      // 达梦数据库
-	DRTaos                        // 涛思数据库
-	DROpengauss                   // opengauss数据库
+	DRDameng                      // dameng database
+	DRTaos                        // TDengine
+	DROpengauss                   // opengauss
 )
 
 // database driver string.
@@ -490,7 +490,7 @@ func RegisterDataBase(aliasName, driverName, dataSource string, params ...DBOpti
 	if driverName == "gpdb" {
 		db, err = sql.Open("postgres", dataSource)
 	} else {
-		//达梦数据库
+		//dameng database
 		if driverName == "dm" {
 			db, err = sql.Open("odbc", dataSource)
 		} else {

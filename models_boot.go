@@ -30,21 +30,21 @@ func RegisterModel(models ...interface{}) {
 
 // RegisterModelWithPrefix Register models with a prefix
 func RegisterModelWithPrefix(prefix string, models ...interface{}) {
-	if err := defaultModelCache.Register("","",prefix, true, models...); err != nil {
+	if err := defaultModelCache.Register("", "", prefix, true, models...); err != nil {
 		panic(err)
 	}
 }
 
 // RegisterModelWithSuffix Register models with a suffix
 func RegisterModelWithSuffix(suffix string, models ...interface{}) {
-	if err := defaultModelCache.Register("","",suffix, false, models...); err != nil {
+	if err := defaultModelCache.Register("", "", suffix, false, models...); err != nil {
 		panic(err)
 	}
 }
 
 // RegisterModelWithSuffix Register models with a suffix
-func RegisterModelWithSchema(alias,schema,suffix string, models ...interface{}) {
-	if err := defaultModelCache.Register(alias,schema,suffix, false, models...); err != nil {
+func RegisterModelWithSchema(alias, schema, suffix string, models ...interface{}) {
+	if err := defaultModelCache.Register(alias, schema, suffix, true, models...); err != nil {
 		panic(err)
 	}
 }
