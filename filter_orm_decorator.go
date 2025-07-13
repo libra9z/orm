@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"time"
 
-	utils2 "github.com/libra9z/orm/internal/utils"
+	utils2 "github.com/libra9z/orm/v2/internal/utils"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/core/utils"

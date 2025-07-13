@@ -20,10 +20,10 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
 	"github.com/beego/beego/v2/core/utils"
-	"github.com/libra9z/orm/clauses/order_clause"
+	"github.com/libra9z/orm/v2/clauses/order_clause"
 )
 
 // TableNameI is usually used by model
@@ -663,5 +663,4 @@ type dbBaser interface {
 
 	//add by Eric 2025/07/09
 	SupportReturningID() bool
-
 }

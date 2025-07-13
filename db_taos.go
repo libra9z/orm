@@ -15,9 +15,9 @@
 package orm
 
 import (
-	"fmt"
-	"github.com/libra9z/orm/internal/models"
 	"context"
+	"fmt"
+	"github.com/libra9z/orm/v2/internal/models"
 )
 
 // taos operators.
@@ -40,18 +40,18 @@ var taosOperators = map[string]string{
 
 // taos column types.
 var taosTypes = map[string]string{
-	"auto":            "integer NOT NULL PRIMARY KEY AUTOINCREMENT",
-	"pk":              "NOT NULL PRIMARY KEY",
-	"bool":            "bool",
-	"string":          "binary(%d)",
-	"binary":     	   "nchar(%d)",
-	"time.Time":       "timestamp",
-	"int8":            "tinyint",
-	"int16":           "smallint",
-	"int32":           "int",
-	"int64":           "bigint",
-	"float32":         "float",
-	"float64":         "double",
+	"auto":      "integer NOT NULL PRIMARY KEY AUTOINCREMENT",
+	"pk":        "NOT NULL PRIMARY KEY",
+	"bool":      "bool",
+	"string":    "binary(%d)",
+	"binary":    "nchar(%d)",
+	"time.Time": "timestamp",
+	"int8":      "tinyint",
+	"int16":     "smallint",
+	"int32":     "int",
+	"int64":     "bigint",
+	"float32":   "float",
+	"float64":   "double",
 }
 
 // taos dbBaser.
@@ -89,11 +89,10 @@ func (d *dbBaseTaos) DbTypes() map[string]string {
 	return taosTypes
 }
 
-
 // get columns in taos.
-func (d *dbBaseTaos) GetColumns(ctx context.Context,db dbQuerier, table string) (map[string][3]string, error) {
+func (d *dbBaseTaos) GetColumns(ctx context.Context, db dbQuerier, table string) (map[string][3]string, error) {
 	query := d.ins.ShowColumnsQuery(table)
-	rows, err := db.QueryContext(ctx,query)
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}

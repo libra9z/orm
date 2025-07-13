@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/libra9z/orm/internal/utils"
+	"github.com/libra9z/orm/v2/internal/utils"
 )
 
 var errSkipField = errors.New("skip field")

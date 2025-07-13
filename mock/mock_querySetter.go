@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/libra9z/orm"
-	"github.com/libra9z/orm/clauses/order_clause"
+	"github.com/libra9z/orm/v2/clauses/order_clause"
 )
 
 // DoNothingQuerySetter do nothing

@@ -21,10 +21,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/libra9z/orm/clauses/order_clause"
-	"github.com/libra9z/orm/internal/buffers"
+	"github.com/libra9z/orm/v2/clauses/order_clause"
+	"github.com/libra9z/orm/v2/internal/buffers"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 )
 
 func TestDbBase_InsertValueSQL(t *testing.T) {
@@ -894,7 +894,7 @@ func TestDbBase_readBatchSQL(t *testing.T) {
 
 	mc := models.NewModelCacheHandler()
 
-	err := mc.Register("","","", false, new(testTab), new(testTab1), new(testTab2))
+	err := mc.Register("", "", "", false, new(testTab), new(testTab1), new(testTab2))
 
 	assert.Nil(t, err)
 
@@ -1199,7 +1199,7 @@ func TestDbBase_readValuesSQL(t *testing.T) {
 
 	mc := models.NewModelCacheHandler()
 
-	err := mc.Register("","","", false, new(testTab), new(testTab1), new(testTab2))
+	err := mc.Register("", "", "", false, new(testTab), new(testTab1), new(testTab2))
 
 	assert.Nil(t, err)
 
@@ -1337,7 +1337,7 @@ func TestDbBase_countSQL(t *testing.T) {
 
 	mc := models.NewModelCacheHandler()
 
-	err := mc.Register("","","", false, new(testTab), new(testTab1), new(testTab2))
+	err := mc.Register("", "", "", false, new(testTab), new(testTab1), new(testTab2))
 
 	assert.Nil(t, err)
 

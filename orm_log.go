@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/libra9z/orm/internal/logs"
+	"github.com/libra9z/orm/v2/internal/logs"
 )
 
 type Log = logs.Log

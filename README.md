@@ -27,7 +27,7 @@ more features please read the docs
 
 **Install:**
 
-	go get github.com/libra9z/orm
+	go get github.com/libra9z/orm/v2
 
 ## Changelog
 
@@ -45,7 +45,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 	_ "github.com/go-sql-driver/mysql" // import your used driver
 )
 

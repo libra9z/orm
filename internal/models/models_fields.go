@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/libra9z/orm/internal/utils"
+	"github.com/libra9z/orm/v2/internal/utils"
 )
 
 // Define the Type enum

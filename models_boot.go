@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	imodels "github.com/libra9z/orm/internal/models"
+	imodels "github.com/libra9z/orm/v2/internal/models"
 )
 
 var defaultModelCache = imodels.NewModelCacheHandler()

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/libra9z/orm/clauses"
+	"github.com/libra9z/orm/v2/clauses"
 )
 
 // ExprSep define the expression separation

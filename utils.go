@@ -15,8 +15,8 @@
 package orm
 
 import (
-	"github.com/libra9z/orm/internal/models"
-	"github.com/libra9z/orm/internal/utils"
+	"github.com/libra9z/orm/v2/internal/models"
+	"github.com/libra9z/orm/v2/internal/utils"
 )
 
 type StrTo = utils.StrTo

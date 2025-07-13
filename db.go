@@ -23,13 +23,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/libra9z/orm/internal/buffers"
+	"github.com/libra9z/orm/v2/internal/buffers"
 
-	"github.com/libra9z/orm/internal/utils"
+	"github.com/libra9z/orm/v2/internal/utils"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
-	"github.com/libra9z/orm/hints"
+	"github.com/libra9z/orm/v2/hints"
 )
 
 // ErrMissPK missing pk error

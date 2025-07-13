@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 )
 
 // postgresql operators.
@@ -248,9 +248,9 @@ func (d *dbBaseGpdb) DbTypes() map[string]string {
 }
 
 // check index exist in postgresql.
-func (d *dbBaseGpdb) IndexExists(ctx context.Context,db dbQuerier, table string, name string) bool {
+func (d *dbBaseGpdb) IndexExists(ctx context.Context, db dbQuerier, table string, name string) bool {
 	query := fmt.Sprintf("SELECT COUNT(*) FROM pg_indexes WHERE tablename = '%s' AND indexname = '%s'", table, name)
-	row := db.QueryRowContext(ctx,query)
+	row := db.QueryRowContext(ctx, query)
 	var cnt int
 	row.Scan(&cnt)
 	return cnt > 0

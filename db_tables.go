@@ -19,10 +19,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
-	"github.com/libra9z/orm/clauses"
-	"github.com/libra9z/orm/clauses/order_clause"
+	"github.com/libra9z/orm/v2/clauses"
+	"github.com/libra9z/orm/v2/clauses/order_clause"
 )
 
 // table info struct.

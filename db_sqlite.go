@@ -22,9 +22,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
-	"github.com/libra9z/orm/hints"
+	"github.com/libra9z/orm/v2/hints"
 )
 
 // sqlite operators.

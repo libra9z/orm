@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	imodels "github.com/libra9z/orm/internal/models"
+	imodels "github.com/libra9z/orm/v2/internal/models"
 )
 
 // getDbDropSQL Get database scheme drop sql queries
@@ -89,7 +89,7 @@ func getDbCreateSQL(mc *imodels.ModelCache, al *alias) (queries []string, tableI
 				column += fi.DBType
 			} else if fi.Auto {
 				switch al.Driver {
-				case DRSqlite, DRPostgres,DROpengauss:
+				case DRSqlite, DRPostgres, DROpengauss:
 					column += T["auto"]
 				default:
 					column += col + " " + T["auto"]

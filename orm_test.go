@@ -28,14 +28,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libra9z/orm/internal/utils"
+	"github.com/libra9z/orm/v2/internal/utils"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/libra9z/orm/clauses/order_clause"
-	"github.com/libra9z/orm/hints"
+	"github.com/libra9z/orm/v2/clauses/order_clause"
+	"github.com/libra9z/orm/v2/hints"
 )
 
 var _ = os.PathSeparator

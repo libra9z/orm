@@ -18,7 +18,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 )
 
 // model to model struct

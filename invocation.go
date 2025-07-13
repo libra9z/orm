@@ -18,7 +18,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 )
 
 // Invocation represents an "Orm" invocation

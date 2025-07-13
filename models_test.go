@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/libra9z/orm/internal/models"
+	"github.com/libra9z/orm/v2/internal/models"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
