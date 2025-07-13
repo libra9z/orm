@@ -168,7 +168,7 @@ func getDbCreateSQL(mc *imodels.ModelCache, al *alias) (queries []string, tableI
 		}
 
 		sql += ";"
-		if al.Driver == DRPostgres && len(commentIndexes) > 0 {
+		if (al.Driver == DRPostgres || al.Driver == DROpengauss) && len(commentIndexes) > 0 {
 			// append comments for postgres only
 			for _, index := range commentIndexes {
 				sql += fmt.Sprintf("\nCOMMENT ON COLUMN %s%s%s.%s%s%s is '%s';",
