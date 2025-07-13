@@ -7,7 +7,6 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/hashicorp/golang-lru v1.0.2
 	github.com/lib/pq v1.10.9
-	github.com/libra9z/orm v1.0.10
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.22.0

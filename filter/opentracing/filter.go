@@ -20,7 +20,7 @@ import (
 
 	"github.com/opentracing/opentracing-go"
 
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 )
 
 // FilterChainBuilder provides an extension point

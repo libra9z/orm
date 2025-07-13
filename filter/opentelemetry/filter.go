@@ -22,7 +22,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	otelTrace "go.opentelemetry.io/otel/trace"
 
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 )
 
 type (

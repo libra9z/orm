@@ -19,7 +19,7 @@
 //
 //	import (
 //		"fmt"
-//		"github.com/libra9z/orm"
+//		"github.com/libra9z/orm/v2"
 //		_ "github.com/go-sql-driver/mysql" // import your used driver
 //	)
 //

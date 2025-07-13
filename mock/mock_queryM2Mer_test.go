@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 )
 
 func TestDoNothingQueryM2Mer(t *testing.T) {

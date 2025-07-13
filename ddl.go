@@ -61,7 +61,7 @@ func getDbCreateSQL(mc *imodels.ModelCache, al *alias) (queries []string, tableI
 		sql += fmt.Sprintf("--  Table Structure for `%s`\n", mi.FullName)
 		sql += fmt.Sprintf("-- %s\n", strings.Repeat("-", 50))
 
-		sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.Table, Q)
+		// sql += fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s%s%s (\n", Q, mi.Table, Q)
 
 		if al.Driver == DROracle || al.Driver == DRSqlserver {
 			if mi.Schema == "" {

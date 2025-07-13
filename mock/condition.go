@@ -17,7 +17,7 @@ package mock
 import (
 	"context"
 
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 )
 
 type Mock struct {

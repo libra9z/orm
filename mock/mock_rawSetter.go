@@ -17,7 +17,7 @@ package mock
 import (
 	"database/sql"
 
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 )
 
 type DoNothingRawSetter struct{}

@@ -21,7 +21,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/libra9z/orm"
+	"github.com/libra9z/orm/v2"
 )
 
 func init() {
