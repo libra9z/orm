@@ -1074,7 +1074,12 @@ func (d *dbBase) DeleteBatch(ctx context.Context, q dbQuerier, qs *querySet, mi 
 	join := tables.getJoinSQL()
 
 	cols := fmt.Sprintf("T0.%s%s%s", Q, mi.Fields.Pk.Column, Q)
-	query := fmt.Sprintf("SELECT %s FROM %s%s%s T0 %s%s%s", cols, Q, mi.Table, Q, specifyIndexes, join, where)
+	query := ""
+	if mi.Schema == "" {
+		query = fmt.Sprintf("SELECT %s FROM %s%s%s T0 %s%s%s", cols, Q, mi.Table, Q, specifyIndexes, join, where)
+	} else {
+		query = fmt.Sprintf("SELECT %s FROM %s%s%s.%s%s%s T0 %s%s%s", cols, Q, mi.Schema, Q, Q, mi.Table, Q, specifyIndexes, join, where)
+	}
 
 	d.ins.ReplaceMarks(&query)
 
@@ -1114,7 +1119,11 @@ func (d *dbBase) DeleteBatch(ctx context.Context, q dbQuerier, qs *querySet, mi 
 		marks[i] = "?"
 	}
 	sqlIn := fmt.Sprintf("IN (%s)", strings.Join(marks, ", "))
-	query = fmt.Sprintf("DELETE FROM %s%s%s WHERE %s%s%s %s", Q, mi.Table, Q, Q, mi.Fields.Pk.Column, Q, sqlIn)
+	if mi.Schema == "" {
+		query = fmt.Sprintf("DELETE FROM %s%s%s WHERE %s%s%s %s", Q, mi.Table, Q, Q, mi.Fields.Pk.Column, Q, sqlIn)
+	} else {
+		query = fmt.Sprintf("DELETE FROM %s%s%s.%s%s%s WHERE %s%s%s %s", Q, mi.Schema, Q, Q, mi.Table, Q, Q, mi.Fields.Pk.Column, Q, sqlIn)
+	}
 
 	d.ins.ReplaceMarks(&query)
 	res, err := q.ExecContext(ctx, query, args...)
